@@ -1,8 +1,7 @@
 local Pet = {}
-Pet.__index = Pet
 
 function Pet.new(name: string, rarity: string, damage: number, coinmul: number)
-    local self = setmetatable({}, Pet)
+    local self = {}
     self.Name = name
     self.Rarity = rarity
     self.Damage = damage

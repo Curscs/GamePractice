@@ -1,8 +1,7 @@
 local Egg = {}
-Egg.__index = Egg
 
 function Egg.new(name: string, currency: string, price: number, pets: table)
-    local self = setmetatable({}, Egg)
+    local self = {}
     self.Name = name
     self.Currency = currency
     self.Price = price
