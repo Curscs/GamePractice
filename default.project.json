@@ -1,0 +1,32 @@
+{
+    "name": "game1",
+    "tree": {
+        "$className": "DataModel",
+        "ReplicatedStorage": {
+            "$className": "ReplicatedStorage",
+            "$path": "src/ReplicatedStorage",
+            "Packages": {
+                "$path": "Packages"
+            },
+            "Misc":{
+                "$className": "Folder"
+            },
+            "Items":{
+                "$className": "Folder"
+            }
+        },
+
+        "ServerScriptService": {
+            "$className": "ServerScriptService",
+            "$path": "src/ServerScriptService"
+        },
+
+        "StarterPlayer": {
+            "StarterPlayerScripts": {
+                "$className": "StarterPlayerScripts",
+                "$path": "src/StarterPlayerScripts"
+            }
+            
+        }
+    }
+}

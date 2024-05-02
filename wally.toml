@@ -1,0 +1,10 @@
+[package]
+name = "curscs/tut"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dependencies]
+Knit = "sleitnick/knit@1.7.0"
+Component = "sleitnick/component@2.4.8"
+Input = "sleitnick/input@2.3.0"
