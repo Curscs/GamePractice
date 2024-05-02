@@ -23,10 +23,10 @@ local InventoryController = Knit.CreateController({
 
 function InventoryController:UpdateStatSize()
     local layoutAbsoluteSize = PetStats.Container.UIListLayout.AbsoluteContentSize
-    PetStats.Size = UDim2.new(0, layoutAbsoluteSize.X + 18, 0, layoutAbsoluteSize.Y + 25)
-    PetStats.Container.Size = UDim2.new(0, layoutAbsoluteSize.X + 18, 0, layoutAbsoluteSize.Y + 25)
-    PetStats.Background.Size = UDim2.new(0, layoutAbsoluteSize.X + 18, 0, layoutAbsoluteSize.Y + 25)
-    PetStats.Background2.Size = UDim2.new(0, layoutAbsoluteSize.X + 18, 0, layoutAbsoluteSize.Y + 25)
+    PetStats.Size = UDim2.new(0, layoutAbsoluteSize.X/ UISCALE.Scale + 18, 0, layoutAbsoluteSize.Y / UISCALE.Scale + 10)
+    PetStats.Container.Size = UDim2.new(0, layoutAbsoluteSize.X / UISCALE.Scale, 0, layoutAbsoluteSize.Y / UISCALE.Scale + 10)
+    PetStats.Background.Size = UDim2.new(0, layoutAbsoluteSize.X / UISCALE.Scale, 0, layoutAbsoluteSize.Y / UISCALE.Scale + 10)
+    PetStats.Background2.Size = UDim2.new(0, layoutAbsoluteSize.X / UISCALE.Scale, 0, layoutAbsoluteSize.Y / UISCALE.Scale + 10)
 end
 
 function InventoryController:OnPetClick(instance) -- when pet is clicked
