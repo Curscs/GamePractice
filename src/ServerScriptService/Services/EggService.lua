@@ -15,7 +15,7 @@ end
 -- { Server Functions } --
 function EggService:OpenEgg(player, eggname: string, type: number)
     local DataService = Knit.GetService("DataService")
-    if DebounceUtil:getDebounceStatus(player, "LastHatched", 3) then
+    if DebounceUtil:getDebounceStatus(player, "LastHatched", 4) then
         if DataService:RemoveCurrency(player, EggModule.GetCurrency(eggname), EggModule.GetPrice(eggname) * type) == "Success" then
             local Petnames = {}
             for i = 1 , type do

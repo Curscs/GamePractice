@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Player = game.Players.LocalPlayer
 local Component = require(ReplicatedStorage.Packages.Component)
@@ -25,26 +26,43 @@ function Egg:CollideFalse(EggInstance)
 end
 
 function Egg:EggOpened(EggInstance, pets, type: number)
+    local Pets = {}
+    for i, pet in pairs(pets) do
+        Pets[i] = ReplicatedStorage.Items.Pets[pet]
+    end
+    x = nil
     for i = 1, type do
-        local EggsRepFolder = ReplicatedStorage.Items
+        local EggsRepFolder = ReplicatedStorage.Items.Eggs
         local EggClone = EggsRepFolder[EggInstance.Name]:Clone()
         self:CollideFalse(EggClone)
         EggClone:PivotTo(CFrame.new(0,-90,0))
+        x = EggClone
         EggClone.Name = i
         EggClone.Parent = workspace.Animations.EggHatching
+        EggClone:SetAttribute("Type", "Egg")
         EggClone:AddTag("EggAnimation")
+    end
+    while x:HasTag("EggAnimation") do
+        task.wait(0.1)
+    end
+    for _, pet in pairs(Pets) do
+        local PetClone = pet:Clone()
+        PetClone.Parent = Workspace.Animations.EggHatching
+        PetClone:SetAttribute("Type", "Pet")
+        PetClone:AddTag("EggAnimation")
     end
 end
 
 function Egg:OnKeyPressed(input, EggInstance)
     local pets = {}
     local EggService = Knit.GetService("EggService")
-    if input.KeyCode == Enum.KeyCode.E then
+    local Children = Workspace.Animations.EggHatching:GetChildren()
+    if input.KeyCode == Enum.KeyCode.E and #Children == 0 then
         pets[1] = EggService:OpenEgg(EggInstance.Name, 1)
         if pets[1] ~= nil then
             self:EggOpened(EggInstance, pets, 1)
         end
-    elseif input.KeyCode == Enum.KeyCode.R then
+    elseif input.KeyCode == Enum.KeyCode.R and #Children == 0 then
         pets = EggService:OpenEgg(EggInstance.Name, 3)
         if pets ~= nil then
             self:EggOpened(EggInstance, pets, 3)
@@ -86,7 +104,6 @@ Egg.Started:Connect(function(component)
             if Connections[eggFullName .. "_InputDetect"] then Connections[eggFullName .. "_InputDetect"]:Disconnect() Connections[eggFullName .. "_InputDetect"] = nil end
             Connections[eggFullName .. "_InputDetect"] = game:GetService("UserInputService").InputBegan:Connect(function(input)
                 Egg:OnKeyPressed(input, EggInstance)
-                print("Why")
             end)
         elseif Distance > component.Range then
             if Connections[eggFullName .. "_InputDetect"] then
