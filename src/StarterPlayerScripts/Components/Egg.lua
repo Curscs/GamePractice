@@ -45,8 +45,9 @@ function Egg:EggOpened(EggInstance, pets, type: number)
     while x:HasTag("EggAnimation") do
         task.wait(0.1)
     end
-    for _, pet in pairs(Pets) do
+    for i, pet in pairs(Pets) do
         local PetClone = pet:Clone()
+        PetClone.Name = i
         PetClone.Parent = Workspace.Animations.EggHatching
         PetClone:SetAttribute("Type", "Pet")
         PetClone:AddTag("EggAnimation")
@@ -54,18 +55,18 @@ function Egg:EggOpened(EggInstance, pets, type: number)
 end
 
 function Egg:OnKeyPressed(input, EggInstance)
-    local pets = {}
+    local Pets = {}
     local EggService = Knit.GetService("EggService")
     local Children = Workspace.Animations.EggHatching:GetChildren()
     if input.KeyCode == Enum.KeyCode.E and #Children == 0 then
-        pets[1] = EggService:OpenEgg(EggInstance.Name, 1)
-        if pets[1] ~= nil then
-            self:EggOpened(EggInstance, pets, 1)
+        Pets = EggService:OpenEgg(EggInstance.Name, 1)
+        if Pets ~= nil then
+            self:EggOpened(EggInstance, Pets, 1)
         end
     elseif input.KeyCode == Enum.KeyCode.R and #Children == 0 then
-        pets = EggService:OpenEgg(EggInstance.Name, 3)
-        if pets ~= nil then
-            self:EggOpened(EggInstance, pets, 3)
+        Pets = EggService:OpenEgg(EggInstance.Name, 3)
+        if Pets ~= nil then
+            self:EggOpened(EggInstance, Pets, 3)
         end
     end
 end
