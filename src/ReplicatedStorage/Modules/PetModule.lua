@@ -16,7 +16,7 @@ end
 Pet.Pets = {
     ["Doggy"] = Pet.new("Doggy", "Common", 5, 4),
     ["Kitty"] = Pet.new("Kitty", "Common", 4, 5),
-    ["???"] = Pet.new("???", "Secret", 100, 50),
+    ["???"] = Pet.new("???", "Secret", 100, 500000),
 }
 
 Pet.Images = {

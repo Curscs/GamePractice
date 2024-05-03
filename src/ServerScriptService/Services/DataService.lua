@@ -8,7 +8,7 @@ local PetModule = require(ReplicatedStorage.Modules.PetModule)
 local DataService = Knit.CreateService {
     Name = "DataService",
     Client = {},
-    DataKey = "v1.81";
+    DataKey = "v1.85";
     DataTemplate = {
         Coins = 1000000;
         Gems = 0;
@@ -43,10 +43,20 @@ function DataService:GetCurrencyImage(currency: string)
     end
 end
 
+function DataService:ChangeData(player, petid: string, currency: string, value: number | string | boolean)
+    local Datastore = DatastoreModule.find(self.DataKey, player.UserId)
+    if currency == "Equipped" then
+        Datastore.Value["Inventory"]["Pets"][petid][currency] = value
+    end
+end
+
 function DataService:AddPet(player, petname: string)
     local Datastore = DatastoreModule.find(self.DataKey, player.UserId)
     local PetsInv = Datastore.Value["Inventory"]["Pets"]
     local PetStats = PetModule.GetAllStats(petname)
+    PetStats["CoinMul"] = nil
+    PetStats["Rarity"] = nil
+    PetStats["Damage"] = nil
     PetStats["Date"] = os.time()
     local ID = UIUtil:GenerateID(6)
     if PetsInv then

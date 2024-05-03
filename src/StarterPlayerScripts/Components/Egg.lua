@@ -74,12 +74,12 @@ end
 function Egg:CreateEggUI(EggInstance)
     local DataService = Knit.GetService("DataService")
     local EggUIClone = EggUI:Clone()
-    local PetTemplate = EggUIClone["Frame"]["Pets"]["Template"]
-    local EggPrice = EggUIClone["Bottom"]["Currency"]["Amount"]
-    local EggCurrencyIcon = EggUIClone["Bottom"]["Currency"]["Icon"]
+    local PetTemplate = EggUIClone["Frame"]["Upper"]["Pets"]["Template"]
+    local EggPrice = EggUIClone["Frame"]["Upper"]["Currency"]["Amount"]
+    local EggCurrencyIcon = EggUIClone["Frame"]["Upper"]["Currency"]["Icon"]
     for petname, chance in pairs(EggModule.GetAllPets(EggInstance.Name)) do
         local PetTemplateClone = PetTemplate:Clone()
-        PetTemplateClone.Parent = EggUIClone["Frame"]["Pets"]
+        PetTemplateClone.Parent = EggUIClone["Frame"]["Upper"]["Pets"]
         PetTemplateClone.LayoutOrder = -chance
         PetTemplateClone.Name = petname
         PetTemplateClone["Chance"].Text = chance .. "%"
