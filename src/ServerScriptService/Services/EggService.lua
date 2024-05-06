@@ -10,22 +10,21 @@ local EggService = Knit.CreateService({
 
 -- { Client Functions } --
 function EggService.Client:OpenEgg(player, eggname: string, type: number)
-    return self.Server:OpenEgg(player, eggname, type)
+    if DebounceUtil:getDebounceStatus(player, "LastHatched", 4) then
+        return self.Server:OpenEgg(player, eggname, type)
+    end
 end
 
 -- { Server Functions } --
 function EggService:OpenEgg(player, eggname: string, type: number)
-    if DebounceUtil:getDebounceStatus(player, "LastHatched", 4) then
-        local DataService = Knit.GetService("DataService")
-        if DataService:RemoveCurrency(player, EggModule.GetCurrency(eggname), EggModule.GetPrice(eggname) * type) == "Success" then
-            local Petnames = {}
-            for i = 1 , type do
-                Petnames[i] = self:SelectRandomPet(eggname)
-                DataService:AddPet(player, Petnames[i])
-            end
-            DataService:AddCurrency(player, "Eggs", type)
-            return Petnames
+    local DataService = Knit.GetService("DataService")
+    if DataService:RemoveCurrency(player, EggModule.GetCurrency(eggname), EggModule.GetPrice(eggname) * type) == "Success" then
+        local Petnames = {}
+        for i = 1 , type do
+            Petnames[i] = self:SelectRandomPet(eggname)
+            DataService:AddPet(player, Petnames[i])
         end
+        return Petnames
     end
 end
 
