@@ -1,9 +1,10 @@
 local Pet = {}
 
-function Pet.new(name: string, rarity: string, damage: number, coinmul: number)
+function Pet.new(name: string, rarity: string, type: string, damage: number, coinmul: number)
     local self = {}
     self.Name = name
     self.Rarity = rarity
+    self.Type = type
     self.Damage = damage
     self.CoinMul = coinmul
     self.Equipped = false
@@ -14,9 +15,9 @@ function Pet.new(name: string, rarity: string, damage: number, coinmul: number)
 end
 
 Pet.Pets = {
-    ["Doggy"] = Pet.new("Doggy", "Common", 5, 4),
-    ["Kitty"] = Pet.new("Kitty", "Common", 4, 5),
-    ["???"] = Pet.new("???", "Secret", 100, 500000),
+    ["Doggy"] = Pet.new("Doggy", "Common", "Walking", 5, 4),
+    ["Kitty"] = Pet.new("Kitty", "Common", "Walking", 4, 5),
+    ["???"] = Pet.new("???", "Secret", "Flying", 100, 500000),
 }
 
 Pet.Images = {
