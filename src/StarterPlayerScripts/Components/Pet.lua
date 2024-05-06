@@ -1,5 +1,4 @@
 local Players = game:GetService("Players")
--- Import necessary modules and services
 local FRAMES_CLOSE = 1
 local FRAMES_CLOSE_LQ = 3
 local FRAMES_CLOSE_DISTANCE = 80
@@ -7,129 +6,94 @@ local FRAMES_FAR = 2
 local FRAMES_FAR_LQ = 6
 local FRAMES_FAR_DISTANCE = 160
 
-local LerpNumber = function(i, j, a)
-    return i + a * (j - i)
-end
-
-local ToVector2 = function(Vector)
-    return Vector2.new(Vector.x, Vector.z)
-end
-
-local ToVector3 = function(Vector, y)
-    return Vector3.new(Vector.x, y or 0, Vector.y)
-end
-
-Connections = {}
-
 local Player = Players.LocalPlayer
-local Camera = workspace.Camera
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Component = require(ReplicatedStorage.Packages.Component)
 local PetModule = require(ReplicatedStorage.Modules.PetModule)
 local ModelWrapper = require(ReplicatedStorage.Util.ModelWrapper)
 local RunService = game:GetService("RunService")
 local RNG = Random.new()
+local Connections = {}
+
+local Camera = workspace.Camera
+
+local LerpNumber = function(i, j, a)
+    return i + a * (j - i)
+end
+local ToVector2 = function(Vector)
+    return Vector2.new(Vector.x, Vector.z)
+end
+local ToVector3 = function(Vector, y)
+    return Vector3.new(Vector.x, y or 0, Vector.y)
+end
 
 local Pet = Component.new({
     Tag = "Pet",
+    LowQuality = false,
+    OthersVisible = true,
+    AllVisible = true
 })
 
-function Pet:Update()
-	local Char = self.Owner.Character
+function Pet:Update(self)
+    if not self.Owner.Character or not self.Owner.Character.PrimaryPart then
+        return
+    end
 
-	if not Char then
-		return
-	end
+    local root = self.Owner.Character.PrimaryPart
+    local cameraOffset = Camera.CFrame.Position - root.Position
+    local distanceSquared = cameraOffset:Dot(cameraOffset)
+    local lowQuality = self.Owner ~= Player and self.LowQuality
 
-	local Root = Char.PrimaryPart
+    local frames = 0
 
-	if not Root then
-		return
-	end
+    if distanceSquared <= FRAMES_CLOSE_DISTANCE * FRAMES_CLOSE_DISTANCE then
+        frames = lowQuality and FRAMES_CLOSE_LQ or FRAMES_CLOSE
+    elseif distanceSquared <= FRAMES_FAR_DISTANCE * FRAMES_FAR_DISTANCE then
+        frames = lowQuality and FRAMES_FAR_LQ or FRAMES_FAR
+    end
 
-	self.Counter = self.Counter + 1
-	local Offset = Camera.CFrame.p - Root.Position
-	local Distance = Offset:Dot(Offset)
-	local LowQuality = self.Owner ~= Player and self.LowQuality
+    if self.Counter % frames > 0 then
+        return
+    end
 
-	if script.Parent.AllVisible.Value == false then
-		return self:Despawn()
-	end
+    local lerp0 = lowQuality and 0.35 or 0.1
+    local lerp1 = lowQuality and 0.65 or 0.3
 
-	if script.Parent.OtherVisible.Value == false and self.Owner ~= Player then
-		return self:Despawn()
-	end
+    local targetPosition = root.Position + (root.CFrame.lookVector * self.Radius)
+    local nextPos0 = self.Position:Lerp(targetPosition, lerp0) * Vector3.new(1, 0, 1)
+    local nextPos1 = self.Position:Lerp(targetPosition, lerp1) * Vector3.new(0, 1, 0)
+    local nextPos = nextPos0 + nextPos1
+    local flatOffset = (nextPos - self.Position) * Vector3.new(1, 0, 1)
+    local moving = flatOffset.magnitude > 0.025
+    local angle = (tick() + self.Phase) % (math.pi * 2)
+    local animation = CFrame.new(0, 0.25, 0)
 
-	local Frames = 0
+    if moving then
+        local animationIntensity = math.clamp((ToVector2(nextPos) - ToVector2(targetPosition)).magnitude, 0, 1)
+        local y = math.abs(math.sin(angle * 10)) * 3 * animationIntensity
+        local r = math.rad(math.sin(angle * 10)) * 20 * animationIntensity
+        animation = CFrame.new(0, y, 0) * CFrame.Angles(0, 0, r)
+    end
 
-	if Distance <= FRAMES_CLOSE_DISTANCE * FRAMES_CLOSE_DISTANCE then
-		Frames = LowQuality and FRAMES_CLOSE_LQ or FRAMES_CLOSE
-	elseif Distance <= FRAMES_FAR_DISTANCE * FRAMES_FAR_DISTANCE then
-		Frames = LowQuality and FRAMES_FAR_LQ or FRAMES_FAR
-	else
-		return self:Despawn()
-	end
+    local twist
 
-	if self.Counter % Frames > 0 then
-		return
-	end
+    if moving then
+        twist = CFrame.new(Vector3.new(), root.CFrame.lookVector)
+    else
+        twist = CFrame.new(Vector3.new(), -nextPos0 + root.Position * Vector3.new(1, 0, 1))
+    end
 
-	local Lerp0 = LowQuality and 0.35 or 0.1
-	local Lerp1 = LowQuality and 0.65 or 0.3
+    self.Twist = self.Twist:Lerp(twist, lerp0 * 0.5)
+    self.Animation = self.Animation:Lerp(animation, lerp1)
+    self.Position = nextPos
+    self.Wrapper:SetCFrame(CFrame.new(self.Position) * self.Twist * self.Animation)
 
-	if not self.Model.Parent then
-		self:Spawn()
-	end
-
-	local Target = Root.Position + self.Offset
-	local Next0 = self.Position:Lerp(Target, Lerp0) * Vector3.new(1, 0, 1)
-	local Next1 = self.Position:Lerp(Target, Lerp1) * Vector3.new(0, 1, 0)
-	local Next = Next0 + Next1
-	local FlatOffset = (Next - self.Position) * Vector3.new(1, 0, 1)
-	local Moving = FlatOffset:Dot(FlatOffset) > 0.025
-	local State = self.State
-	local now = tick()
-	local Angle = (now + self.Phase) % (math.pi * 2)
-	local Animation = CFrame.new(0, 0.25, 0)
-
-	if Moving == true and State == "Walk" or State == "Walk" and self.Model.PrimaryPart.Position.Y > Root.Position.Y - 1.5 then
-		local num = 4.5
-		local AnimationIntensity = math.clamp((ToVector2(Next) - ToVector2(Target)).magnitude, 0, num) / num
-		local y = math.abs(math.sin(Angle * 10)) * 3 * AnimationIntensity
-		local r = math.rad(math.sin(Angle * 10)) * 20 * AnimationIntensity
-		Animation = CFrame.new(0, y, 0) * CFrame.Angles(0, 0, r)
-	elseif State == "Fly" then
-		Animation = CFrame.new(0, 3, 0) * CFrame.Angles(math.rad(math.cos(Angle * 4)) * 8, 0, 0) + Vector3.new(0, math.sin(Angle * 4) * 0.5, 0)
-	end
-
-	local Twist
-
-	if Moving then
-		Twist = CFrame.new(Vector3.new(), Root.CFrame.lookVector)
-	else
-		Twist = CFrame.new(Vector3.new(), -Next0 + Root.Position * Vector3.new(1, 0, 1))
-	end
-
-	self.Twist = self.Twist:Lerp(Twist, Lerp0 * 0.5)
-	self.Animation = self.Animation:Lerp(Animation, Lerp1)
-	self.Position = Next
-	self.Wrapper:SetCFrame(CFrame.new(self.Position) * self.Twist * self.Animation)
+    -- Debug prints
+    print("Current Distance:", distanceSquared)
+    print("Current Next Position:", nextPos)
+    print("Current Animation Frame:", self.Animation)
 end
 
-function Pet:Spawn()
-	self.Position = self.Owner.Character.PrimaryPart and self.Owner.Character.PrimaryPart.Position or Vector3.new()
-	self.Model.Parent = workspace.Pets
-	self:Update()
-end
-
-function Pet:Despawn()
-	self.Model.Parent = nil
-end
-
-function Pet:Destroy()
-	self.Model:Destroy()
-	self = nil
-end
 
 function Pet:Construct()
     self.Owner = nil
@@ -149,15 +113,37 @@ function Pet:Construct()
 end
 
 Pet.Started:Connect(function(component)
+    local self = component
     local RobloxInstance = component.Instance
+    self.Owner = game.Players:FindFirstChild(RobloxInstance:GetAttribute("Owner"))
+    self.Id = RobloxInstance.Name
+    self.Name = RobloxInstance:GetAttribute("Name")
+    self.Type = PetModule.GetStat(component.Name, "Type")
+    self.Model = RobloxInstance
+    self.Wrapper = ModelWrapper.new(self.Model)
+    self.Size = self.Model:GetBoundingBox()
+    for _, Instance in next, RobloxInstance:GetDescendants() do
+        if Instance:IsA("BasePart") then
+            Instance.CanCollide = false
+        end
+    end
 
-    component.Owner = game.Players:FindFirstChild(RobloxInstance:GetAttribute("Owner"))
-    component.Id = RobloxInstance.Name
-    component.Name = RobloxInstance:GetAttribute("Name")
-    component.State = RobloxInstance:GetAttribute("State")
-    component.Model = RobloxInstance
+    if not RobloxInstance.PrimaryPart then
+        RobloxInstance.PrimaryPart = RobloxInstance:FindFirstChild("Root")
+    end
 
+    self.Position = self.Owner.Character.PrimaryPart and self.Owner.Character.PrimaryPart.Position or Vector3.new()
+    Connections[self.Id] = RunService:BindToRenderStep("PetRendering", Enum.RenderPriority.Character.Value + 1, function(dt)
+        Pet:Update(self)
+    end)
 end)
 
-        
+Pet.Stopped:Connect(function(component)
+    local self = component
+    if Connections[self.Id] then
+        Connections[self.Id]:Disconnect()
+        Connections[self.Id] = nil
+    end
+end)
+
 return Pet

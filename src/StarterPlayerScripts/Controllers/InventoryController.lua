@@ -8,6 +8,7 @@ local PetModule = require(ReplicatedStorage.Modules.PetModule)
 local RarityModule = require(ReplicatedStorage.Modules.RarityModule)
 -- { Global } --
 local Connections = {}
+local ClickedPet = nil
 -- { InventoryGui } --
 local InventorySG = PlayerGui:WaitForChild("Inventory")
 local InventoryFrame = InventorySG:WaitForChild("Frame")
@@ -30,8 +31,33 @@ function InventoryController:UpdateStatSize()
     PetStats.Background2.Size = UDim2.new(0, layoutAbsoluteSize.X / UISCALE.Scale, 0, layoutAbsoluteSize.Y / UISCALE.Scale + 10)
 end
 
-function InventoryController:OnPetClick(instance) -- when pet is clicked
+function InventoryController:OnPetStatsEquipClick()
     local PetService = Knit.GetService("PetService")
+    if PetStats["Container"]["Equip"].Visible == true then
+        if PetService:TriggerPet(ClickedPet) == "Equipped" then
+            PetStats["Container"]["Unequip"].Visible = true
+            PetStats["Container"]["Equip"].Visible = false
+            InventoryController:UpdateGui()
+        end
+    end
+end
+
+function InventoryController:OnPetStatsUnequipClick()
+    local PetService = Knit.GetService("PetService")
+    if PetStats["Container"]["Unequip"].Visible == true then
+        if PetService:TriggerPet(ClickedPet) == "Unequipped" then
+            PetStats["Container"]["Equip"].Visible = true
+            PetStats["Container"]["Unequip"].Visible = false
+            InventoryController:UpdateGui()
+        end
+    end
+end
+
+function InventoryController:OnPetStatsCloseClick()
+    PetStats.Visible = false
+end
+
+function InventoryController:OnPetClick(instance) -- when pet is clicked
     local DataService = Knit.GetService("DataService")
     local PlayerData = DataService:GetData("Inventory")
     local Pets = PlayerData["Pets"]
@@ -60,25 +86,7 @@ function InventoryController:OnPetClick(instance) -- when pet is clicked
         PetStats["Container"]["Equip"].Visible = false
     end
     -- Button Click Connections
-    PetStats["Container"]["Equip"].MouseButton1Click:Connect(function()
-        if PetService:TriggerPet(instance.Name) == "Success" then
-            PetStats["Container"]["Unequip"].Visible = true
-            PetStats["Container"]["Equip"].Visible = false
-            InventoryController:UpdateGui()
-        end
-    end)
-    PetStats["Container"]["Unequip"].MouseButton1Click:Connect(function()
-        if PetService:TriggerPet(instance.Name) == "Success" then
-            PetStats["Container"]["Equip"].Visible = true
-            PetStats["Container"]["Unequip"].Visible = false
-            InventoryController:UpdateGui()
-        end
-    end)
-    PetStats["Container"]["Close"].MouseButton1Click:Connect(function()
-        PetStats.Visible = false
-    end)
-    
-
+    ClickedPet = instance.Name
 end
 
 function InventoryController:OnGuiTrigger(action: string)
@@ -145,19 +153,31 @@ function InventoryController:UpdateGui()
         TemplateClone.Visible = true
         TemplateClone["PetName"].Text = petstats["Name"]
         TemplateClone["Pet"]["Icon"].Image = PetModule.GetImage(petstats["Name"])
-        if PetsData[TemplateClone.Name]["Equipped"] == true then
+        if petstats["Equipped"] == true then
             TemplateClone["Tick"].Visible = true
         end
         TemplateClone["PetName"]["UIGradient"].Color = RarityModule.Colors[PetModule.GetStat(petstats["Name"], "Rarity")]
         TemplateClone["UIGradient"].Color = RarityModule.Colors[PetModule.GetStat(petstats["Name"], "Rarity")]
-        for _, instance in pairs(PetContainer:GetChildren()) do 
-            if instance:IsA("ImageButton") and instance.Name ~= "Template" then
-                instance.MouseButton1Click:Connect(function()
-                    self:OnPetClick(instance)
-                end)
-            end
+    end
+    for _, instance in pairs(PetContainer:GetChildren()) do 
+        if instance:IsA("ImageButton") and instance.Name ~= "Template" then
+            instance.MouseButton1Click:Connect(function()
+                self:OnPetClick(instance)
+            end)
         end
     end
+end
+
+function InventoryController:KnitInit()
+    PetStats["Container"]["Equip"].MouseButton1Click:Connect(function()
+        self:OnPetStatsEquipClick()
+    end)
+    PetStats["Container"]["Unequip"].MouseButton1Click:Connect(function()
+        self:OnPetStatsUnequipClick()
+    end)
+    PetStats["Container"]["Close"].MouseButton1Click:Connect(function()
+        self:OnPetStatsCloseClick()
+    end)
 end
 
 return InventoryController
