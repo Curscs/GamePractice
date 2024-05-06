@@ -114,7 +114,7 @@ function DataService:UpdateLeaderstats(player, currency: string)
 end
 
 function DataService:DataCheck(player)
-    local Datastore = DatastoreModule.find(self.DataKey, player.UserId)
+    local Datastore = DatastoreModule.new(self.DataKey, player.UserId)
     while Datastore.State ~= true do
         task.wait(0.1)
     end

@@ -1,10 +1,10 @@
 local Pet = {}
 
-function Pet.new(name: string, rarity: string, type: string, damage: number, coinmul: number)
+function Pet.new(name: string, rarity: string, state: string, damage: number, coinmul: number)
     local self = {}
     self.Name = name
     self.Rarity = rarity
-    self.Type = type
+    self.State = state
     self.Damage = damage
     self.CoinMul = coinmul
     self.Equipped = false

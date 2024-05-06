@@ -55,4 +55,20 @@ function PetService:TriggerPet(player, petid: string)
     end
 end
 
+function PetService:KnitStart()
+    game.Players.PlayerAdded:Connect(function(player)
+        local DataService = Knit.GetService("DataService")
+        if DataService:DataCheck(player) == "Success" then
+            local Inventory = DataService:GetData(player, "Inventory")
+            local Pets = Inventory.Pets
+            for id, data in pairs(Pets) do
+                if data["Equipped"] == true then
+                    print("Hey")
+                    self:EquipPet(player, id)
+                end
+            end
+        end
+    end)
+end
+
 return PetService
