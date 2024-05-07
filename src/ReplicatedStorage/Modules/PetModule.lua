@@ -15,7 +15,7 @@ function Pet.new(name: string, rarity: string, state: string, damage: number, co
 end
 
 Pet.Pets = {
-    ["Doggy"] = Pet.new("Doggy", "Common", "Walking", 5, 4),
+    ["Doggy"] = Pet.new("Doggy", "Common", "Flying", 5, 4),
     ["Kitty"] = Pet.new("Kitty", "Common", "Walking", 4, 5),
     ["???"] = Pet.new("???", "Secret", "Flying", 100, 500000),
 }

@@ -7,7 +7,6 @@ local Workspace = game:GetService("Workspace")
 local PetModule = require(ReplicatedStorage.Modules.PetModule)
 local Trove = require(ReplicatedStorage.Packages.Trove)
 local RNG = Random.new()
-local Connections = {}
 
 local ToVector2 = function(Vector)
 	return Vector2.new(Vector.x, Vector.z)
@@ -22,7 +21,7 @@ function Pet:Construct()
     self.Owner = nil
     self.Id = nil
     self.Name = nil
-    self.State = "Walking"
+    self.State = nil
     self.CoordFrame = CFrame.new()
     self.LastTick = 0
     self.Offset = Vector3.new()
@@ -100,6 +99,7 @@ function Pet:spawn(origin)
 end
 
 function Pet:onRender()
+    print(self.State)
     local playerChar = self.Owner.Character
     if self.Owner.Character == nil or self.Instance.PrimaryPart == nil or self.Owner.Character.PrimaryPart == nil or playerChar.Humanoid == nil then
         return
@@ -115,14 +115,14 @@ function Pet:onRender()
     local animation = CFrame.new(0, 0.25, 0)
     local twist = CFrame.new()
 
-    if self.Flying then
+    if self.State == "Flying" then
         local cframe = CFrame.new(0, 3, 0)
         local anim = CFrame.Angles(math.rad(math.cos(angle * 4)) * 8, 0, 0)
         local anim2 = Vector3.new(0, math.sin(angle * 4) * 0.5, 0)
         animation = cframe * anim + anim2
     end
 
-    if moving and not self.Flying then
+    if moving and self.State ~= "Flying" then
         local animationIntensity = math.clamp((ToVector2(Next) - ToVector2(target)).Magnitude, 0, 4.5) / 4.5
         local y = math.abs(math.sin(angle * 10)) * 3 * animationIntensity
         local r = math.rad(math.sin(angle * 10)) * 20 * animationIntensity

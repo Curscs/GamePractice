@@ -12,8 +12,8 @@ end
 Egg.Eggs = {
     ["Common Egg"] = Egg.new("Common Egg", "Coins", 100, {
         ["Doggy"] = 30,
-        ["Kitty"] = 20,
-        ["???"] = 1,
+        ["Kitty"] = 30,
+        ["???"] = 30,
     })
 }
 
