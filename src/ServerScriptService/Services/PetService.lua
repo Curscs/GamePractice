@@ -63,7 +63,6 @@ function PetService:KnitStart()
             local Pets = Inventory.Pets
             for id, data in pairs(Pets) do
                 if data["Equipped"] == true then
-                    print("Hey")
                     self:EquipPet(player, id)
                 end
             end

@@ -16,7 +16,7 @@ local Egg = Component.new({
 })
 
 function Egg:Construct()
-    self.Range = 5
+    self.Range = 7
 end
 
 function Egg:CollideFalse(EggInstance)
