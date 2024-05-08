@@ -152,7 +152,6 @@ function CreateLeaderstats()
             end
         end
     end
-
     game.Players.PlayerAdded:Connect(function(player)
         local leaderstats = Instance.new("Folder")
         leaderstats.Name = "leaderstats"

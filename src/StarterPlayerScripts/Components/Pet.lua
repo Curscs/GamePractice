@@ -99,7 +99,6 @@ function Pet:spawn(origin)
 end
 
 function Pet:onRender()
-    print(self.State)
     local playerChar = self.Owner.Character
     if self.Owner.Character == nil or self.Instance.PrimaryPart == nil or self.Owner.Character.PrimaryPart == nil or playerChar.Humanoid == nil then
         return
@@ -151,3 +150,54 @@ RunService:BindToRenderStep("PetRendering", Enum.RenderPriority.Character.Value 
 end)
 
 return Pet
+
+
+
+
+
+--[[
+elseif atBack then
+        local rowCount = math.ceil(numPets / 3)  -- Calculate the number of rows
+        local offsetY = -3  -- Offset along the Y-axis for shifting all rows downwards
+        local playerOffsetX = 0 -- Offset for centering around the player
+    
+        -- Calculate the total width of all pets in each row
+        local rowWidths = {}
+        for i = 1, rowCount do
+            local rowPets = math.min(numPets - (i - 1) * 3, 3)  -- Number of pets in the current row
+            rowWidths[i] = (rowPets - 1) * 1.5  -- Calculate total width of the pets in the row
+        end
+    
+        -- Calculate total width of all rows
+        local totalWidth = math.max(unpack(rowWidths))
+    
+        -- Calculate the offset for centering around the player
+        playerOffsetX = -totalWidth / 2
+    
+        for i, v in ipairs(arr) do
+            -- Calculate row and column indices without using math.floor
+            local rowIndex = math.floor((i - 1) / 3) + 1
+            local colIndex = (i - 1) % 3 + 1
+    
+            -- Calculate offsetX for the current row
+            local rowPets = math.min(numPets - (rowIndex - 1) * 3, 3) -- Number of pets in the current row
+            local offsetX = -rowWidths[rowIndex] / 2 + playerOffsetX  -- Start X-offset from the center of the row
+    
+            -- Adjust offsetX for rows with fewer pets
+            if rowPets < 3 and rowIndex ~= 1 then
+                offsetX = offsetX + (3 - rowPets) * 1.5 / 2
+            elseif rowPets == 3 and rowIndex == 1 then
+                offsetX = offsetX + (3 - rowPets) * (1.5 / 2)/2
+            elseif rowPets == 2 and rowIndex == 1 then
+                offsetX = offsetX + (3 - rowPets) * ((1.5 / 2)/2)/2
+            elseif rowPets == 1 and rowIndex == 1 then
+                offsetX = offsetX + (3 - rowPets) * (((1.5 / 2)/2)/2)/2
+            end
+            -- Calculate offset based on row and column indices
+            local offsetZ = -(rowIndex - 1) * 3 + offsetY  -- Apply the offset along the Y-axis
+    
+            -- Set the offset for the current pet
+            v:setOffset(Vector3.new(offsetX + (colIndex - 1) * 3, v.Flying and -2.5 or -3.0, offsetZ))
+        end
+    end
+]]
