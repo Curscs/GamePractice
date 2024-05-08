@@ -30,25 +30,11 @@ function CatchablePet:Construct()
     self.ModelWrapper = ModelWrapper.new(self.Instance)
 end
 
-function CatchablePet:CreateCameraViews()
-    local PetView = {
-        CameraUtil:SetCameraHost(self.Instance.PrimaryPart),
-        Offset = CFrame.new(0,0.75,0),
-        MinZoom = 3,
-        MaxZoom = 3,
-        Zoom = 3,
-        CameraUtil:LockCameraPanning(true, true)
-    }
-
-    CameraUtil:CreateNewCameraView("PetView", PetView)
-end
-
 CatchablePet.Started:Connect(function(self)
     self.Name = self.Instance:GetAttribute("Name")
     self.State = PetModule.GetStat(self.Name, "State")
     self.Position = self.Instance.PrimaryPart.Position
     self:OnStart()
-    self:CreateCameraViews()
 end)
 
 CatchablePet.Stopped:Connect(function(self)
@@ -62,14 +48,14 @@ function CatchablePet:OnStart()
         local Character = Player.Character or Player.Character:Wait()
         local HRP = Character:WaitForChild("HumanoidRootPart")
         local Distance = (self.Instance.PrimaryPart.Position - HRP.Position).magnitude
-        if self.Range > Distance and self.Action ~= "Interacting" then
+        if self.Range >= Distance and self.Action ~= "Interacting" then
             if UI.Enabled ~= true then
                 UI.Enabled = true
                 self.Trove2:Add(game:GetService("UserInputService").InputBegan:Connect(function(input)
                     self:OnInteract(input)
                 end))
             end
-        elseif self.Range <= Distance then
+        elseif self.Range < Distance then
             if UI.Enabled ~= false then UI.Enabled = false
                 self.Trove2:Clean()
             end
@@ -88,8 +74,14 @@ function CatchablePet:OnInteract(input)
     if input.KeyCode == Enum.KeyCode.E then
         self.Action = "Interacting"
         UI.Enabled = false
-        CameraUtil:SetCameraView("PetView")
         Player.Character.Humanoid.WalkSpeed = 0
+        CameraUtil:SetCameraHost(self.Instance.PrimaryPart)
+        CameraUtil:LockCameraPanning(true, true)
+        CameraUtil:SetCameraView("ThirdPerson")
+        CameraUtil:Change("Offset", CFrame.new(0,0.75,0))
+        CameraUtil:Change("MinZoom", 3)
+        CameraUtil:Change("MaxZoom", 3)
+        CameraUtil:Change("Zoom", 3)
         self:MakePlayersInvisible()
     end
 end
@@ -102,17 +94,16 @@ function CatchablePet:MakePlayersInvisible()
 end
 
 function CatchablePet:OnRender()
-    -- Get the player's position
     if self.TurnTime <= tick() and self.Action ~= "Interacting" then
         self.LastTurn = math.random(1,360)
-        self.TurnTime = tick() + 20
+        self.TurnTime = tick() + math.random(5,50)
    elseif self.Action == "Interacting" then
         -- Calculate the angle between the pet and the camera
         local cameraPosition = Camera.CFrame.Position -- Assuming Camera is the variable holding the camera's CFrame
         local petPosition = self.Position
         local direction = (cameraPosition - petPosition).unit
         local angle = math.atan2(direction.X, direction.Z)
-        self.LastTurn = math.deg(angle) + 180
+        self.LastTurn = math.deg(angle) - 180
     end
 
     local now = tick()

@@ -12,7 +12,7 @@ local ClickedPet = nil
 -- { InventoryGui } --
 local InventorySG = PlayerGui:WaitForChild("Inventory")
 local InventoryFrame = InventorySG:WaitForChild("Frame")
-local UISCALE = InventoryFrame:WaitForChild("UIScale")
+local UISCALE = InventorySG:WaitForChild("UIScale")
 local ContentFrame = InventoryFrame:WaitForChild("Content")
 local PetContainer = ContentFrame:WaitForChild("PetContainerFrame")
 local Template = PetContainer:WaitForChild("Template")
