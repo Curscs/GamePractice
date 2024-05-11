@@ -8,7 +8,7 @@ local PetModule = require(ReplicatedStorage.Modules.PetModule)
 local DataService = Knit.CreateService {
     Name = "DataService",
     Client = {},
-    DataKey = "v2.4";
+    DataKey = "v2.5";
     DataTemplate = {
         Coins = 1000000;
         Gems = 0;
@@ -19,7 +19,7 @@ local DataService = Knit.CreateService {
             Items = {};
         };
         Misc = {
-            InventorySpace = 100
+            InventorySpace = 100;
         }
     };
     DataDisplay = {"Coins", "Gems", "Eggs"};

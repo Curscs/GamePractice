@@ -115,7 +115,9 @@ end
 
 function ModelWrapper:SetTransparency(DesiredTransparency)
 	for BasePart in next, self.Cache do
-		BasePart.Transparency = DesiredTransparency
+		if BasePart.Name ~= "HumanoidRootPart" then
+			BasePart.Transparency = DesiredTransparency
+		end
 	end
 end
 

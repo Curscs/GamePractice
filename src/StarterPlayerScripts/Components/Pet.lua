@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Catchable = require(script.Parent.Catchable)
 local Component = require(ReplicatedStorage.Packages.Component)
 local ModelWrapper = require(ReplicatedStorage.Util.ModelWrapper)
 local RunService = game:GetService("RunService")
@@ -99,6 +100,10 @@ function Pet:spawn(origin)
 end
 
 function Pet:onRender()
+    local x = nil
+    if Workspace.Animations.Misc:FindFirstChild("Fighting")then
+        x = Workspace.Animations.Misc.Fighting.Value
+    end
     local playerChar = self.Owner.Character
     if self.Owner.Character == nil or self.Instance.PrimaryPart == nil or self.Owner.Character.PrimaryPart == nil or playerChar.Humanoid == nil then
         return
@@ -121,14 +126,14 @@ function Pet:onRender()
         animation = cframe * anim + anim2
     end
 
-    if moving and self.State ~= "Flying" then
+    if x ~= true and moving and self.State ~= "Flying" then
         local animationIntensity = math.clamp((ToVector2(Next) - ToVector2(target)).Magnitude, 0, 4.5) / 4.5
         local y = math.abs(math.sin(angle * 10)) * 3 * animationIntensity
         local r = math.rad(math.sin(angle * 10)) * 20 * animationIntensity
         animation = CFrame.new(0, y, 0) * CFrame.Angles(0, 0, r)
     end
 
-    if moving then
+    if x ~= true and moving then
         twist = CFrame.new(Vector3.new(), self.Owner.Character.PrimaryPart.CFrame.LookVector)
     else
         twist = CFrame.new(Vector3.new(), ((Next0 * -1) + (self.Owner.Character.PrimaryPart.Position or Vector3.new())) * Vector3.new(1, 0, 1))
@@ -143,7 +148,7 @@ function Pet:onRender()
     end
 end
 
-RunService:BindToRenderStep("PetRendering", Enum.RenderPriority.Character.Value + 1, function(dt)
+RunService.Stepped:Connect(function()
     for _, petComponent in ipairs(Pet:GetAll()) do
         petComponent:onRender(petComponent)
     end
